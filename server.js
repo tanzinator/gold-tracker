@@ -1,7 +1,15 @@
 const axios = require('axios');
-const qrcode = require('qrcode-terminal');
+const express = require('express');
+
+const qrcode = require('qrcode');
 const { Client } = require('whatsapp-web.js');
 const cron = require('node-cron');
+const app = express();
+const port = 3000;
+
+app.use(express.static('public'));
+
+
 
 // Schedule to run every day at 10 AM
 cron.schedule('00 10 * * *', () => {
@@ -15,19 +23,29 @@ cron.schedule('30 18 * * *', () => {
   sendGoldRate();
 });
 
+
+
 // Initialize WhatsApp client
 const client = new Client();
+let qrCodeString = ''; // Store the WhatsApp QR code
 
-client.on('qr', (qr) => {
+client.on('qr', async (qr) => {
   // Generate and scan this QR code with your phone's WhatsApp
-  qrcode.generate(qr, { small: true });
+  //qrcode.generate(qr, { small: true });
+  console.log('Scan this QR code in WhatsApp to log in:');
+  console.log(qr);
+  qrCodeString =  await qrcode.toDataURL(qr);
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.log('WhatsApp client is ready!');
   // Fetch gold rate and send the message
-  sendGoldRate();
+  await sendGoldRate();
+  console.log('Gold rates have been sent!');
 });
+
+// Initialize the WhatsApp client
+client.initialize();
 
 const phoneNumbers = [
 '919823519523@c.us',
@@ -107,5 +125,24 @@ async function sendGoldRate() {
   });
 }
 
-// Initialize the WhatsApp client
-client.initialize();
+// Endpoint to display the WhatsApp QR code in an HTML page
+app.get('/whatsapp-login', (req, res) => {
+  if (!qrCodeString) {
+    res.send('<h1>Waiting for WhatsApp QR Code...</h1>');
+  } else {
+    res.send(`
+      <html>
+        <body>
+          <h1>Scan this QR Code to log in to WhatsApp</h1>
+          <img src="${qrCodeString}" alt="WhatsApp QR Code"/>
+        </body>
+      </html>
+    `);
+  }
+});
+
+
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
