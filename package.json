@@ -13,7 +13,7 @@
     "axios": "^1.7.7",
     "express": "^4.19.2",
     "node-cron": "^3.0.3",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "puppeteer": "^13.0.0",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
