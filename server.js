@@ -1,18 +1,31 @@
 const axios = require('axios');
 const express = require('express');
-
+const puppeteer = require('puppeteer');
 const qrcode = require('qrcode');
 const { Client } = require('whatsapp-web.js');
 const cron = require('node-cron');
 const app = express();
+const fetch = require('node-fetch');
+
 const port = 3000;
 
 app.use(express.static('public'));
 
 
+setInterval(() => {
+  fetch('https://gold-tracker-gzku.onrender.com/health')
+    .then(res => res.text())
+    .then(body => {
+      console.log('Keep-alive ping successful:', body);
+    })
+    .catch(err => {
+      console.error('Error in keep-alive ping:', err);
+    });
+}, 5 * 60 * 1000); // Ping every 5 minutes (300000 milliseconds)
+
 
 // Schedule to run every day at 10 AM
-cron.schedule('00 10 * * *', () => {
+cron.schedule('00 12 * * *', () => {
   console.log('Fetching gold rate and sending WhatsApp message...');
   sendGoldRate();
 });
@@ -26,7 +39,21 @@ cron.schedule('30 18 * * *', () => {
 
 
 // Initialize WhatsApp client
-const client = new Client();
+const client = new Client({
+  puppeteer: {
+    headless: true, // Run in headless mode
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process', // <- this one doesn't work in Windows
+      '--disable-gpu'
+    ]
+  }
+});
 let qrCodeString = ''; // Store the WhatsApp QR code
 
 client.on('qr', async (qr) => {
@@ -139,6 +166,10 @@ app.get('/whatsapp-login', (req, res) => {
       </html>
     `);
   }
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).send('Alive'); // Respond with 'Alive' or 'OK'
 });
 
 
