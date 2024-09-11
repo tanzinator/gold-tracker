@@ -15,6 +15,8 @@ const MONGO_URI = 'mongodb+srv://mongo:mongo123@cluster0.icfu6.mongodb.net/whats
 
 //const client = new MongoClient(MONGO_URI);
 
+let qrCodeData = ''; // Store the QR code as a global variable
+
 async function connectToMongoDB() {
   try {
     console.log('Attempting to connect to MongoDB...');
