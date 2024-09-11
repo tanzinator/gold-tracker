@@ -1,10 +1,14 @@
 const { Client, RemoteAuth } = require('whatsapp-web.js');
+const express = require('express');
+const app = express();
 const { MongoClient } = require('mongodb');
 const MAX_RETRIES = 5;
 let retryCount = 0;
-const qrcode = require('qrcode-terminal');
+const qrcode = require('qrcode');
 const axios = require('axios');
 const cron = require('node-cron');
+
+const port = 3000;
 
 // MongoDB connection setup (Replace <username>, <password>, and <cluster-url> with your MongoDB details)
 const MONGO_URI = 'mongodb+srv://mongo:mongo123@cluster0.icfu6.mongodb.net/whatsapp?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your connection string
@@ -69,9 +73,10 @@ async function startWhatsApp() {
       });
   
       // Display QR code in terminal if required
-      whatsappClient.on('qr', (qr) => {
+      whatsappClient.on('qr', async (qr) => {
         console.log('QR code received, scan it with your WhatsApp app.');
-        qrcode.generate(qr, { small: true }); // Display the QR code in terminal
+        qrCodeData = await qrcode.toDataURL(qr);
+        //qrcode.generate(qr, { small: true }); // Display the QR code in terminal
       });
   
       // Handle successful authentication and session persistence in MongoDB
@@ -299,3 +304,34 @@ function scheduleCronJobs(whatsappClient) {
 
 // Start the WhatsApp client with MongoDB RemoteAuth
 startWhatsApp();
+
+app.get('/', (req, res) => {
+  if (qrCodeData) {
+    res.send(`
+      <html>
+        <head>
+          <title>WhatsApp QR Code</title>
+        </head>
+        <body style="text-align: center; padding-top: 50px;">
+          <h1>Scan the QR code with your WhatsApp app</h1>
+          <img src="${qrCodeData}" alt="QR Code" />
+        </body>
+      </html>
+    `);
+  } else {
+    res.send(`
+      <html>
+        <head>
+          <title>WhatsApp QR Code</title>
+        </head>
+        <body style="text-align: center; padding-top: 50px;">
+          <h1>Waiting for QR code...</h1>
+        </body>
+      </html>
+    `);
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
