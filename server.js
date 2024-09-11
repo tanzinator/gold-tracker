@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env
+
 const { Client, RemoteAuth } = require('whatsapp-web.js');
 const express = require('express');
 const app = express();
@@ -11,7 +13,7 @@ const cron = require('node-cron');
 const port = 3000;
 
 // MongoDB connection setup (Replace <username>, <password>, and <cluster-url> with your MongoDB details)
-const MONGO_URI = 'mongodb+srv://mongo:mongo123@cluster0.icfu6.mongodb.net/whatsapp?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your connection string
+const MONGO_URI = process.env.MONGO_URI; // Replace with your connection string
 
 //const client = new MongoClient(MONGO_URI);
 
@@ -159,7 +161,7 @@ const phoneNumbers = [
      const malabarRate = await getMalabarGoldRate();
      const pngRate = await getPngGoldRate();
      
-     let message = "Today's Gold Rates:\n";
+     let message = "Automated message:\nToday's Gold Rates:\n";
      
      if (abharanRate) {
       message += `- Abharan: ₹${abharanRate}/g\n`;
@@ -291,7 +293,7 @@ function scheduleCronJobs(whatsappClient) {
   });
 
   // Schedule the second job at 3:00 PM every day
-  cron.schedule('07 17 * * *', () => {
+  cron.schedule('32 18 * * *', () => {
     console.log('Running cron job at 5:00 PM');
     sendGoldRate(whatsappClient);
   });
