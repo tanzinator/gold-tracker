@@ -117,7 +117,8 @@ const phoneNumbers = [
   '919823519523@c.us',
   '919764026140@c.us',
   '919423883930@c.us',
-  '919822120973@c.us'
+  '919822120973@c.us',
+  '917507653259@c.us'
   ];
   
   // Fetch the gold rate from the API
@@ -300,10 +301,10 @@ function scheduleCronJobs(whatsappClient) {
   });
 
   // Schedule the second job at 3:00 PM every day
-  /*cron.schedule('01 19 * * *', () => {
+  cron.schedule('54 11 * * *', () => {
     console.log('Running cron job at 5:00 PM');
     sendGoldRate(whatsappClient);
-  });*/
+  });
 
   cron.schedule('00 17 * * *', () => {
     console.log('Running cron job at 3:00 PM');
