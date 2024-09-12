@@ -301,7 +301,7 @@ function scheduleCronJobs(whatsappClient) {
   });
 
   // Schedule the second job at 3:00 PM every day
-  cron.schedule('54 11 * * *', () => {
+  cron.schedule('03 12 * * *', () => {
     console.log('Running cron job at 5:00 PM');
     sendGoldRate(whatsappClient);
   });
