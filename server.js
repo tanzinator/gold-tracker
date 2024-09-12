@@ -116,7 +116,8 @@ async function startWhatsApp() {
 const phoneNumbers = [
   '919823519523@c.us',
   '919764026140@c.us',
-  
+  '919423883930@c.us',
+  '919822120973@c.us'
   ];
   
   // Fetch the gold rate from the API
@@ -133,8 +134,9 @@ const phoneNumbers = [
   async function getMalabarGoldRate() {
     try {
       const response = await axios.get('https://www.malabargoldanddiamonds.com/malabarprice/index/getrates/?country=IN&state=Maharashtra');
-      const goldRate = response.data["22kt"]; // Adjust based on API response
-      return goldRate;
+      const twentytwogoldRate = response.data["22kt"]; // Adjust based on API response
+      const twentyFourgoldRate = response.data["24kt"]; 
+      return {twentytwogoldRate, twentyFourgoldRate};
     } catch (error) {
       console.error('Error fetching Malabar gold rate:', error);
     }
@@ -145,8 +147,11 @@ const phoneNumbers = [
       const response = await axios.get('https://api-accounts.pngjewellers.com/accounts/cache/PNG_INDIA_METAL_PRICE');
       const goldRate = response.data.responseBody; // Adjust based on API response
     const gold22K = goldRate.find(item => item.metalPurity === "22KT");
+    const gold24K = goldRate.find(item => item.metalPurity === "24KT");
+    const gold22price = gold22K.price;
+    const gold24price = gold24K.price;
     if(gold22K) {
-      return gold22K.price;
+      return {gold22price, gold24price};
     } else {
       return null;
     }
@@ -158,25 +163,27 @@ const phoneNumbers = [
   // Send gold rate via WhatsApp
   async function sendGoldRate(whatsappClient) {
      const abharanRate = await getAbharanGoldRate();
-     const malabarRate = await getMalabarGoldRate();
-     const pngRate = await getPngGoldRate();
+     const {twentytwogoldRate, twentyFourgoldRate} = await getMalabarGoldRate();
+     const {gold22price, gold24price} = await getPngGoldRate();
      
      let message = "Automated message:\nToday's Gold Rates:\n";
      
      if (abharanRate) {
-      message += `- Abharan: ₹${abharanRate}/g\n`;
+      message += `- Abharan 22K: ₹${abharanRate}/g\n`;
     } else {
       message += "- Abharan: Unable to fetch rate.\n";
     }
     
-    if (malabarRate) {
-      message += `- Malabar: ₹${malabarRate}\n`;
+    if (twentytwogoldRate) {
+      message += `- Malabar 22K: ₹${twentytwogoldRate}\n`;
+      message += `- Malabar 24K: ₹${twentyFourgoldRate}\n`;
     } else {
       message += "- Malabar: Unable to fetch rates.\n";
     }
     
-    if (pngRate) {
-      message += `- Png: ₹${pngRate}\n`;
+    if (gold22price) {
+      message += `- Png 22K: ₹${gold22price}\n`;
+      message += `- Png 24K: ₹${gold24price}\n`;
     } else {
       message += "- Png: Unable to fetch rates.\n";
     }
@@ -287,16 +294,16 @@ class MongoStore {
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
   // Schedule the first job at 10:00 AM every day
-  cron.schedule('0 10 * * *', () => {
+  cron.schedule('0 11 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
   });
 
   // Schedule the second job at 3:00 PM every day
-  cron.schedule('32 18 * * *', () => {
+  /*cron.schedule('01 19 * * *', () => {
     console.log('Running cron job at 5:00 PM');
     sendGoldRate(whatsappClient);
-  });
+  });*/
 
   cron.schedule('00 17 * * *', () => {
     console.log('Running cron job at 3:00 PM');
