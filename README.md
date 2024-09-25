@@ -1,6 +1,6 @@
 # Gold Price Fetcher and WhatsApp Web Integration
 
-This Node.js application fetches real-time gold rates from the Malabar Gold and Diamonds website, handles redirections, and uses WhatsApp Web to send gold prices to configured contacts.
+This Node.js application fetches real-time gold rates from the Gold websites, and uses WhatsApp Web to send gold prices to configured contacts.
 
 ## Features
 
