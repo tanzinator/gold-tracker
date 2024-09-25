@@ -134,13 +134,43 @@ const phoneNumbers = [
   
   async function getMalabarGoldRate() {
     try {
-      const response = await axios.get('https://www.malabargoldanddiamonds.com/malabarprice/index/getrates/?country=IN&state=Maharashtra');
-      const twentytwogoldRate = response.data["22kt"]; // Adjust based on API response
-      const twentyFourgoldRate = response.data["24kt"]; 
-      return {twentytwogoldRate, twentyFourgoldRate};
-    } catch (error) {
-      console.error('Error fetching Malabar gold rate:', error);
+      const initialResponse = await axios.get('https://www.malabargoldanddiamonds.com/malabarprice/index/getrates/?country=IN&state=Maharashtra', {
+        maxRedirects: 0,
+        validateStatus: function (status) {
+          return status >= 200 && status < 400; // Accept only successful responses (200–399)
+        },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+        },
+      });
+
+        // Check if the server returned any cookies
+    const setCookieHeader = initialResponse.headers['set-cookie'];
+    if (setCookieHeader) {
+      const cookies = setCookieHeader.join('; '); // Combine cookies into a single string
+
+      // Now follow the redirect and include the cookies in the second request
+      const finalResponse = await axios.get(initialResponse.headers.location, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+          'Cookie': cookies, // Send the cookies with the redirected request
+        },
+      });
+
+      // Extract the gold rates from the final response
+      const twentytwogoldRate = finalResponse.data["22kt"];
+      const twentyFourgoldRate = finalResponse.data["24kt"];
+      return {
+        twentytwogoldRate,
+        twentyFourgoldRate
+      };
+    } else {
+      throw new Error('No cookies set by the server. Unable to proceed.');
     }
+  } catch (error) {
+    console.error('Error fetching Malabar gold rate:', error);
+    return null;
+  }
   }
   
   async function getPngGoldRate() {
@@ -295,21 +325,21 @@ class MongoStore {
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
   // Schedule the first job at 10:00 AM every day
-  cron.schedule('0 11 * * *', () => {
+  cron.schedule('00 17 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
   });
 
   // Schedule the second job at 3:00 PM every day
-  cron.schedule('03 12 * * *', () => {
+  /*cron.schedule('03 12 * * *', () => {
     console.log('Running cron job at 5:00 PM');
     sendGoldRate(whatsappClient);
-  });
+  });*/
 
-  cron.schedule('00 17 * * *', () => {
+  /*cron.schedule('04 12 * * *', () => {
     console.log('Running cron job at 3:00 PM');
     sendGoldRate(whatsappClient);
-  });
+  });*/
 
   console.log('Cron jobs scheduled: 10:00 AM and 5:00 PM');
 }
