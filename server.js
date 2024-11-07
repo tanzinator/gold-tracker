@@ -6,7 +6,7 @@ const app = express();
 const { MongoClient } = require('mongodb');
 const qrcode = require('qrcode');
 const axios = require('axios');
-const { Worker } = require('worker_threads');
+const { Worker, isMainThread, parentPort } = require('worker_threads');
 
 const port = process.env.PORT || 3000;
 const MAX_RETRIES = 5;
@@ -17,39 +17,40 @@ let qrCodeData = '';
 const MONGO_URI = process.env.MONGO_URI;
 
 // Create a worker for handling scheduled tasks
-const worker = new Worker(`
-  const { parentPort } = require('worker_threads');
-  
-  function checkSchedule() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+let workerInstance = null;
+if (isMainThread) {
+  workerInstance = new Worker(`
+    const { parentPort } = require('worker_threads');
     
-    // Check if it's 10:00 AM
-    if (hours === 14 && minutes === 10) {
-      parentPort.postMessage('SEND_RATES');
+    function checkSchedule() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      
+      // Check if it's 10:00 AM
+      if (hours === 14 && minutes === 30) {
+        parentPort.postMessage('SEND_RATES');
+      }
+      
+      // Check if it's 5:00 PM
+      if (hours === 17 && minutes === 0) {
+        parentPort.postMessage('SEND_RATES');
+      }
     }
     
-    // Check if it's 5:00 PM
-    if (hours === 17 && minutes === 0) {
-      parentPort.postMessage('SEND_RATES');
-    }
-  }
-  
-  // Check every minute
-  setInterval(checkSchedule, 60000);
-  
-  // Initial check
-  checkSchedule();
-`, { eval: true });
+    // Check every minute
+    setInterval(checkSchedule, 60000);
+    
+    // Initial check
+    checkSchedule();
+  `, { eval: true });
 
-// Handle messages from the worker
-let whatsappClientInstance = null;
-worker.on('message', async (message) => {
-  if (message === 'SEND_RATES' && whatsappClientInstance) {
-    await sendGoldRate(whatsappClientInstance);
-  }
-});
+  workerInstance.on('message', async (message) => {
+    if (message === 'SEND_RATES' && whatsappClientInstance) {
+      await sendGoldRate(whatsappClientInstance);
+    }
+  });
+}
 
 const phoneNumbers = [
   '919764026140@c.us'
@@ -285,6 +286,7 @@ class MongoStore {
   }
 }
 
+let whatsappClientInstance = null;
 async function startWhatsApp() {
   try {
     const client = await connectToMongoDB();
@@ -380,8 +382,16 @@ app.listen(port, () => {
 // Handle process termination
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received. Cleaning up...');
-  if (worker) {
-    await worker.terminate();
+  if (whatsappClientInstance) {
+    try {
+      // Send any remaining messages before terminating
+      await sendGoldRate(whatsappClientInstance);
+    } catch (error) {
+      console.error('Error sending messages before termination:', error);
+    }
+  }
+  if (workerInstance) {
+    await workerInstance.terminate();
   }
   process.exit(0);
 });
