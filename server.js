@@ -28,7 +28,7 @@ if (isMainThread) {
       const minutes = now.getMinutes();
       
       // Check if it's 10:00 AM
-      if (hours === 15 && minutes === 25) {
+      if (hours === 18 && minutes === 20) {
         parentPort.postMessage('SEND_RATES');
       }
       
