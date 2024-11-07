@@ -301,9 +301,20 @@ async function startWhatsApp() {
           store: mongoStore,
           backupSyncIntervalMs: 60000,
         }),
+        
         puppeteer: { 
           headless: true,
-          timeout: 60000
+          timeout: 60000,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // This is often useful on cloud services
+            '--disable-gpu'
+          ]
           
         }
       });
