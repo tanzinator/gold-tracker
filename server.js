@@ -13,7 +13,7 @@ const cron = require('node-cron');
 const port = 3000;
 
 // MongoDB connection setup (Replace <username>, <password>, and <cluster-url> with your MongoDB details)
-const MONGO_URI = process.env.MONGO_URI; // Replace with your connection string
+const MONGO_URI = 'mongodb+srv://mongo:mongo123@cluster0.icfu6.mongodb.net/whatsapp?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your connection string
 
 //const client = new MongoClient(MONGO_URI);
 
@@ -21,16 +21,14 @@ let qrCodeData = ''; // Store the QR code as a global variable
 
 async function connectToMongoDB() {
   try {
-      // Reset retry counter on success
-      retryCount = 0;
     console.log('Attempting to connect to MongoDB...');
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
     console.log('Connected to MongoDB successfully');
-    const db = client.db('whatsapp');
-    return db.collection('sessions');
 
-  
+    // Reset retry counter on success
+    retryCount = 0;
+    return client;
 
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
@@ -58,10 +56,16 @@ async function connectToMongoDB() {
 async function startWhatsApp() {
   try {
     // Connect to MongoDB
-    const sessionCollection = await connectToMongoDB();
-    const mongoStore = new MongoStore(sessionCollection);
-    console.log('Connected to MongoDB successfully.');
+    const client = await connectToMongoDB();
+    if(client) {
+      const db = client.db('whatsapp');
+      const sessionCollection = db.collection('sessions');
+      console.log('Connected to MongoDB successfully.');
   
+      // Create a custom MongoStore using the MongoDB collection
+      const mongoStore = new MongoStore(sessionCollection);
+  
+      
   
       // Initialize WhatsApp client with RemoteAuth strategy
       const whatsappClient = new Client({
@@ -85,9 +89,13 @@ async function startWhatsApp() {
           
         }
       });
+
+      console.log(whatsappClient)
+
+      sendGoldRate(whatsappClient);
   
       // Display QR code in terminal if required
-    /*  whatsappClient.on('qr', async (qr) => {
+     /* whatsappClient.on('qr', async (qr) => {
         console.log('QR code received, scan it with your WhatsApp app.');
         qrCodeData = await qrcode.toDataURL(qr);
         //qrcode.generate(qr, { small: true }); // Display the QR code in terminal
@@ -97,6 +105,7 @@ async function startWhatsApp() {
       whatsappClient.on('ready', () => {
         console.log('Client is ready to use WhatsApp.');
         sendGoldRate(whatsappClient);
+        
         // Schedule the cron jobs once the client is ready
         //scheduleCronJobs(whatsappClient);
       });
@@ -111,14 +120,20 @@ async function startWhatsApp() {
       // Initialize the WhatsApp client
       whatsappClient.initialize();
     }
-   
-    catch (error) {
+    else {
+      console.log('Failed to establish a database connection.');
+
+    }
+    
+
+
+  } catch (error) {
     console.error('Error starting WhatsApp client:', error);
   }
 }
 
 const phoneNumbers = [
-
+  
   '919764026140@c.us'
   
   ];
@@ -324,21 +339,19 @@ class MongoStore {
   }
 }
 
-
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
-  sendGoldRate(whatsappClient);
   // Schedule the first job at 10:00 AM every day
- /* cron.schedule('00 19 * * *', () => {
+  cron.schedule('25 22 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
-  });*/
+  });
 
   // Schedule the second job at 3:00 PM every day
-  /*cron.schedule('03 12 * * *', () => {
-    console.log('Running cron job at 5:00 PM');
+  cron.schedule('19 20 * * *', () => {
+    console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
-  });*/
+  });
 
   /*cron.schedule('04 12 * * *', () => {
     console.log('Running cron job at 3:00 PM');
@@ -377,6 +390,11 @@ app.get('/', (req, res) => {
     `);
   }
 });
+
+app.get('/getgoldrate', (req, res) => {
+  const whatsappClient =  startWhatsApp();
+  
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
