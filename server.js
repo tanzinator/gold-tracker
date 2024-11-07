@@ -26,7 +26,7 @@ const worker = new Worker(`
     const minutes = now.getMinutes();
     
     // Check if it's 10:00 AM
-    if (hours === 14 && minutes === 00) {
+    if (hours === 14 && minutes === 10) {
       parentPort.postMessage('SEND_RATES');
     }
     
