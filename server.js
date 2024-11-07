@@ -366,7 +366,7 @@ function scheduleCronJobs(whatsappClient) {
 }
 
 // Start the WhatsApp client with MongoDB RemoteAuth
-startWhatsApp();
+//startWhatsApp();
 
 app.get('/', (req, res) => {
   if (qrCodeData) {
