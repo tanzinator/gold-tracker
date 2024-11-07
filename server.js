@@ -28,7 +28,7 @@ if (isMainThread) {
       const minutes = now.getMinutes();
       
       // Check if it's 10:00 AM
-      if (hours === 14 && minutes === 30) {
+      if (hours === 14 && minutes === 36) {
         parentPort.postMessage('SEND_RATES');
       }
       
@@ -303,13 +303,8 @@ async function startWhatsApp() {
         }),
         puppeteer: { 
           headless: true,
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--disable-gpu'
-          ]
+          timeout: 60000
+          
         }
       });
 
