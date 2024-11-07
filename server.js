@@ -21,14 +21,16 @@ let qrCodeData = ''; // Store the QR code as a global variable
 
 async function connectToMongoDB() {
   try {
+      // Reset retry counter on success
+      retryCount = 0;
     console.log('Attempting to connect to MongoDB...');
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
     console.log('Connected to MongoDB successfully');
+    const db = client.db('whatsapp');
+    return db.collection('sessions');
 
-    // Reset retry counter on success
-    retryCount = 0;
-    return client;
+  
 
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
@@ -56,16 +58,10 @@ async function connectToMongoDB() {
 async function startWhatsApp() {
   try {
     // Connect to MongoDB
-    const client = await connectToMongoDB();
-    if(client) {
-      const db = client.db('whatsapp');
-      const sessionCollection = db.collection('sessions');
-      console.log('Connected to MongoDB successfully.');
+    const sessionCollection = await connectToMongoDB();
+    const mongoStore = new MongoStore(sessionCollection);
+    console.log('Connected to MongoDB successfully.');
   
-      // Create a custom MongoStore using the MongoDB collection
-      const mongoStore = new MongoStore(sessionCollection);
-  
-      
   
       // Initialize WhatsApp client with RemoteAuth strategy
       const whatsappClient = new Client({
@@ -91,18 +87,18 @@ async function startWhatsApp() {
       });
   
       // Display QR code in terminal if required
-      whatsappClient.on('qr', async (qr) => {
+    /*  whatsappClient.on('qr', async (qr) => {
         console.log('QR code received, scan it with your WhatsApp app.');
         qrCodeData = await qrcode.toDataURL(qr);
         //qrcode.generate(qr, { small: true }); // Display the QR code in terminal
-      });
+      });*/
   
       // Handle successful authentication and session persistence in MongoDB
       whatsappClient.on('ready', () => {
         console.log('Client is ready to use WhatsApp.');
-        
+        sendGoldRate(whatsappClient);
         // Schedule the cron jobs once the client is ready
-        scheduleCronJobs(whatsappClient);
+        //scheduleCronJobs(whatsappClient);
       });
   
       // Handle client disconnection and re-authentication if needed
@@ -115,14 +111,8 @@ async function startWhatsApp() {
       // Initialize the WhatsApp client
       whatsappClient.initialize();
     }
-    else {
-      console.log('Failed to establish a database connection.');
-
-    }
-    
-
-
-  } catch (error) {
+   
+    catch (error) {
     console.error('Error starting WhatsApp client:', error);
   }
 }
@@ -333,6 +323,7 @@ class MongoStore {
     return id;
   }
 }
+
 
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
