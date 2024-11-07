@@ -73,7 +73,21 @@ async function startWhatsApp() {
           store: mongoStore,  // Use MongoDB for session management
           backupSyncIntervalMs: 60000,  // Sync every 1 minute
         }),
-        puppeteer: { headless: true }  // Set to false if you want to see the browser for debugging
+        puppeteer: { 
+          headless: true,
+          timeout: 60000,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // This is often useful on cloud services
+            '--disable-gpu'
+          ]
+          
+        }
       });
   
       // Display QR code in terminal if required
