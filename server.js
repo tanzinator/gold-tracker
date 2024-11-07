@@ -339,7 +339,7 @@ class MongoStore {
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
   // Schedule the first job at 10:00 AM every day
-  cron.schedule('55 18 * * *', () => {
+  cron.schedule('00 19 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
   });
