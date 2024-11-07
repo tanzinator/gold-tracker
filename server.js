@@ -92,23 +92,26 @@ async function startWhatsApp() {
 
       console.log(whatsappClient)
 
-      sendGoldRate(whatsappClient);
+      
   
       // Display QR code in terminal if required
-     /* whatsappClient.on('qr', async (qr) => {
+     whatsappClient.on('qr', async (qr) => {
         console.log('QR code received, scan it with your WhatsApp app.');
         qrCodeData = await qrcode.toDataURL(qr);
         //qrcode.generate(qr, { small: true }); // Display the QR code in terminal
-      });*/
+      });
   
       // Handle successful authentication and session persistence in MongoDB
       whatsappClient.on('ready', () => {
         console.log('Client is ready to use WhatsApp.');
+        console.log(whatsappClient.session)
         sendGoldRate(whatsappClient);
         
         // Schedule the cron jobs once the client is ready
         //scheduleCronJobs(whatsappClient);
       });
+
+     
   
       // Handle client disconnection and re-authentication if needed
       whatsappClient.on('disconnected', (reason) => {
@@ -256,6 +259,7 @@ class MongoStore {
   async save(id, data) {
     const sessionId = this._ensureIdIsString(id);
     console.log('Saving session ID:', sessionId);
+    console.log('session data', data)
     await this.collection.updateOne(
       { _id: sessionId },
       { $set: { _id: sessionId, data: data } },
@@ -342,7 +346,7 @@ class MongoStore {
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
   // Schedule the first job at 10:00 AM every day
-  cron.schedule('25 22 * * *', () => {
+  cron.schedule('43 22 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
   });
