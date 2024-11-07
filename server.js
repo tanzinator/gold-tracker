@@ -128,11 +128,9 @@ async function startWhatsApp() {
 }
 
 const phoneNumbers = [
-  '919823519523@c.us',
-  '919764026140@c.us',
-  '919423883930@c.us',
-  '919822120973@c.us',
-  '917507653259@c.us'
+
+  '919764026140@c.us'
+  
   ];
   
   // Fetch the gold rate from the API
@@ -338,11 +336,12 @@ class MongoStore {
 
 // Function to schedule two cron jobs
 function scheduleCronJobs(whatsappClient) {
+  sendGoldRate(whatsappClient);
   // Schedule the first job at 10:00 AM every day
-  cron.schedule('00 19 * * *', () => {
+ /* cron.schedule('00 19 * * *', () => {
     console.log('Running cron job at 10:00 AM');
     sendGoldRate(whatsappClient);
-  });
+  });*/
 
   // Schedule the second job at 3:00 PM every day
   /*cron.schedule('03 12 * * *', () => {
