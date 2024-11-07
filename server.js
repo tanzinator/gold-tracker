@@ -395,10 +395,10 @@ app.get('/', (req, res) => {
   }
 });
 
-app.get('/getgoldrate', (req, res) => {
-  const whatsappClient =  startWhatsApp();
-  
-})
+startWhatsApp().then(client => {
+  module.exports = { sendGoldRate, client }; // Export the function and client for use in other files
+}).catch(console.error);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
