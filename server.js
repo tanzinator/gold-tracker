@@ -14,7 +14,7 @@ let retryCount = 0;
 let qrCodeData = '';
 
 // MongoDB connection setup
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = 'mongodb+srv://mongo:mongo123@cluster0.icfu6.mongodb.net/whatsapp?retryWrites=true&w=majority&appName=Cluster0';
 
 // Create a worker for handling scheduled tasks
 let workerInstance = null;
