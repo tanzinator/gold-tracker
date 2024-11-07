@@ -1,23 +1,60 @@
-require('dotenv').config(); // Load environment variables from .env
+require('dotenv').config();
 
 const { Client, RemoteAuth } = require('whatsapp-web.js');
 const express = require('express');
 const app = express();
 const { MongoClient } = require('mongodb');
-const MAX_RETRIES = 5;
-let retryCount = 0;
 const qrcode = require('qrcode');
 const axios = require('axios');
-const cron = require('node-cron');
+const { Worker } = require('worker_threads');
 
-const port = 3000;
+const port = process.env.PORT || 3000;
+const MAX_RETRIES = 5;
+let retryCount = 0;
+let qrCodeData = '';
 
-// MongoDB connection setup (Replace <username>, <password>, and <cluster-url> with your MongoDB details)
-const MONGO_URI = process.env.MONGO_URI; // Replace with your connection string
+// MongoDB connection setup
+const MONGO_URI = process.env.MONGO_URI;
 
-//const client = new MongoClient(MONGO_URI);
+// Create a worker for handling scheduled tasks
+const worker = new Worker(`
+  const { parentPort } = require('worker_threads');
+  
+  function checkSchedule() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // Check if it's 10:00 AM
+    if (hours === 13 && minutes === 40) {
+      parentPort.postMessage('SEND_RATES');
+    }
+    
+    // Check if it's 5:00 PM
+    if (hours === 17 && minutes === 0) {
+      parentPort.postMessage('SEND_RATES');
+    }
+  }
+  
+  // Check every minute
+  setInterval(checkSchedule, 60000);
+  
+  // Initial check
+  checkSchedule();
+`, { eval: true });
 
-let qrCodeData = ''; // Store the QR code as a global variable
+// Handle messages from the worker
+let whatsappClientInstance = null;
+worker.on('message', async (message) => {
+  if (message === 'SEND_RATES' && whatsappClientInstance) {
+    await sendGoldRate(whatsappClientInstance);
+  }
+});
+
+const phoneNumbers = [
+  '919764026140@c.us'
+ 
+];
 
 async function connectToMongoDB() {
   try {
@@ -25,26 +62,20 @@ async function connectToMongoDB() {
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
     console.log('Connected to MongoDB successfully');
-
-    // Reset retry counter on success
     retryCount = 0;
     return client;
-
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
-
     if (error.code === 'ECONNRESET' || error.syscall === 'read') {
       retryCount += 1;
       if (retryCount <= MAX_RETRIES) {
-        const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        const retryDelay = Math.pow(2, retryCount) * 1000;
         console.log(`Connection reset. Retrying in ${retryDelay / 1000} seconds... (${retryCount}/${MAX_RETRIES})`);
-        
-        // Wait and then retry the connection
         await new Promise(resolve => setTimeout(resolve, retryDelay));
-        return connectToMongoDB(); // Retry the connection
+        return connectToMongoDB();
       } else {
         console.error('Max retries reached. Could not reconnect to MongoDB.');
-        process.exit(1); // Exit after maximum retries
+        process.exit(1);
       }
     } else {
       console.error('Unexpected error:', error);
@@ -53,181 +84,113 @@ async function connectToMongoDB() {
   }
 }
 
-async function startWhatsApp() {
+// Gold rate fetching functions remain the same
+async function getAbharanGoldRate() {
   try {
-    // Connect to MongoDB
-    const client = await connectToMongoDB();
-    if(client) {
-      const db = client.db('whatsapp');
-      const sessionCollection = db.collection('sessions');
-      console.log('Connected to MongoDB successfully.');
-  
-      // Create a custom MongoStore using the MongoDB collection
-      const mongoStore = new MongoStore(sessionCollection);
-  
-      
-  
-      // Initialize WhatsApp client with RemoteAuth strategy
-      const whatsappClient = new Client({
-        authStrategy: new RemoteAuth({
-          store: mongoStore,  // Use MongoDB for session management
-          backupSyncIntervalMs: 60000,  // Sync every 1 minute
-        }),
-        puppeteer: { headless: true }  // Set to false if you want to see the browser for debugging
-      });
-  
-      // Display QR code in terminal if required
-      whatsappClient.on('qr', async (qr) => {
-        console.log('QR code received, scan it with your WhatsApp app.');
-        qrCodeData = await qrcode.toDataURL(qr);
-        //qrcode.generate(qr, { small: true }); // Display the QR code in terminal
-      });
-  
-      // Handle successful authentication and session persistence in MongoDB
-      whatsappClient.on('ready', () => {
-        console.log('Client is ready to use WhatsApp.');
-        
-        // Schedule the cron jobs once the client is ready
-        scheduleCronJobs(whatsappClient);
-      });
-  
-      // Handle client disconnection and re-authentication if needed
-      whatsappClient.on('disconnected', (reason) => {
-        console.log('Client was logged out or disconnected:', reason);
-        console.log('Re-authenticating...');
-        whatsappClient.initialize();
-      });
-  
-      // Initialize the WhatsApp client
-      whatsappClient.initialize();
-    }
-    else {
-      console.log('Failed to establish a database connection.');
-
-    }
-    
-
-
+    const response = await axios.get('https://services.abharan.com/api/v1/website/dailyrate');
+    const goldRate = response.data.data.gold22;
+    return goldRate;
   } catch (error) {
-    console.error('Error starting WhatsApp client:', error);
+    console.error('Error fetching Abharan gold rate:', error);
+    return null;
   }
 }
 
-const phoneNumbers = [
-  '919823519523@c.us',
-  '919764026140@c.us',
-  '919423883930@c.us',
-  '919822120973@c.us',
-  '917507653259@c.us'
-  ];
-  
-  // Fetch the gold rate from the API
-  async function getAbharanGoldRate() {
-    try {
-      const response = await axios.get('https://services.abharan.com/api/v1/website/dailyrate');
-      const goldRate = response.data.data.gold22; // Adjust based on API response
-      return goldRate;
-    } catch (error) {
-      console.error('Error fetching Abharan gold rate:', error);
-    }
-  }
-  
-  async function getMalabarGoldRate() {
-    try {
-      const initialResponse = await axios.get('https://www.malabargoldanddiamonds.com/malabarprice/index/getrates/?country=IN&state=Maharashtra', {
-        maxRedirects: 0,
-        validateStatus: function (status) {
-          return status >= 200 && status < 400; // Accept only successful responses (200–399)
-        },
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-        },
-      });
+async function getMalabarGoldRate() {
+  try {
+    const initialResponse = await axios.get('https://www.malabargoldanddiamonds.com/malabarprice/index/getrates/?country=IN&state=Maharashtra', {
+      maxRedirects: 0,
+      validateStatus: function (status) {
+        return status >= 200 && status < 400;
+      },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+      },
+    });
 
-        // Check if the server returned any cookies
     const setCookieHeader = initialResponse.headers['set-cookie'];
     if (setCookieHeader) {
-      const cookies = setCookieHeader.join('; '); // Combine cookies into a single string
-
-      // Now follow the redirect and include the cookies in the second request
+      const cookies = setCookieHeader.join('; ');
       const finalResponse = await axios.get(initialResponse.headers.location, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-          'Cookie': cookies, // Send the cookies with the redirected request
+          'Cookie': cookies,
         },
       });
 
-      // Extract the gold rates from the final response
-      const twentytwogoldRate = finalResponse.data["22kt"];
-      const twentyFourgoldRate = finalResponse.data["24kt"];
       return {
-        twentytwogoldRate,
-        twentyFourgoldRate
+        twentytwogoldRate: finalResponse.data["22kt"],
+        twentyFourgoldRate: finalResponse.data["24kt"]
       };
-    } else {
-      throw new Error('No cookies set by the server. Unable to proceed.');
     }
+    throw new Error('No cookies set by the server.');
   } catch (error) {
     console.error('Error fetching Malabar gold rate:', error);
     return null;
   }
-  }
-  
-  async function getPngGoldRate() {
-    try {
-      const response = await axios.get('https://api-accounts.pngjewellers.com/accounts/cache/PNG_INDIA_METAL_PRICE');
-      const goldRate = response.data.responseBody; // Adjust based on API response
+}
+
+async function getPngGoldRate() {
+  try {
+    const response = await axios.get('https://api-accounts.pngjewellers.com/accounts/cache/PNG_INDIA_METAL_PRICE');
+    const goldRate = response.data.responseBody;
     const gold22K = goldRate.find(item => item.metalPurity === "22KT");
     const gold24K = goldRate.find(item => item.metalPurity === "24KT");
-    const gold22price = gold22K.price;
-    const gold24price = gold24K.price;
-    if(gold22K) {
-      return {gold22price, gold24price};
-    } else {
-      return null;
+    if (gold22K && gold24K) {
+      return {
+        gold22price: gold22K.price,
+        gold24price: gold24K.price
+      };
     }
-    } catch (error) {
-      console.error('Error fetching Png gold rate:', error);
-    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Png gold rate:', error);
+    return null;
   }
-  
-  // Send gold rate via WhatsApp
-  async function sendGoldRate(whatsappClient) {
-     const abharanRate = await getAbharanGoldRate();
-     const {twentytwogoldRate, twentyFourgoldRate} = await getMalabarGoldRate();
-     const {gold22price, gold24price} = await getPngGoldRate();
-     
-     let message = "Automated message:\nToday's Gold Rates:\n";
-     
-     if (abharanRate) {
+}
+
+async function sendGoldRate(whatsappClient) {
+  try {
+    const [abharanRate, malabarRates, pngRates] = await Promise.all([
+      getAbharanGoldRate(),
+      getMalabarGoldRate(),
+      getPngGoldRate()
+    ]);
+
+    let message = "Automated message:\nToday's Gold Rates:\n";
+    
+    if (abharanRate) {
       message += `- Abharan 22K: ₹${abharanRate}/g\n`;
     } else {
       message += "- Abharan: Unable to fetch rate.\n";
     }
     
-    if (twentytwogoldRate) {
-      message += `- Malabar 22K: ₹${twentytwogoldRate}\n`;
-      message += `- Malabar 24K: ₹${twentyFourgoldRate}\n`;
+    if (malabarRates) {
+      message += `- Malabar 22K: ₹${malabarRates.twentytwogoldRate}\n`;
+      message += `- Malabar 24K: ₹${malabarRates.twentyFourgoldRate}\n`;
     } else {
       message += "- Malabar: Unable to fetch rates.\n";
     }
     
-    if (gold22price) {
-      message += `- Png 22K: ₹${gold22price}\n`;
-      message += `- Png 24K: ₹${gold24price}\n`;
+    if (pngRates) {
+      message += `- Png 22K: ₹${pngRates.gold22price}\n`;
+      message += `- Png 24K: ₹${pngRates.gold24price}\n`;
     } else {
       message += "- Png: Unable to fetch rates.\n";
     }
-  
-      phoneNumbers.forEach(async (number) => {
-        try {
-          await whatsappClient.sendMessage(number, message);
-          console.log(`Message sent to ${number} successfully!`);
-        } catch (error) {
-          console.error(`Error sending message to ${number}:`, error);
-        }
-    });
+
+    await Promise.all(phoneNumbers.map(async (number) => {
+      try {
+        await whatsappClient.sendMessage(number, message);
+        console.log(`Message sent to ${number} successfully!`);
+      } catch (error) {
+        console.error(`Error sending message to ${number}:`, error);
+      }
+    }));
+  } catch (error) {
+    console.error('Error in sendGoldRate:', error);
   }
+}
 
 // Custom MongoStore class for handling sessions in MongoDB
 class MongoStore {
@@ -322,31 +285,62 @@ class MongoStore {
   }
 }
 
-// Function to schedule two cron jobs
-function scheduleCronJobs(whatsappClient) {
-  // Schedule the first job at 10:00 AM every day
-  cron.schedule('00 17 * * *', () => {
-    console.log('Running cron job at 10:00 AM');
-    sendGoldRate(whatsappClient);
-  });
+async function startWhatsApp() {
+  try {
+    const client = await connectToMongoDB();
+    if (client) {
+      const db = client.db('whatsapp');
+      const sessionCollection = db.collection('sessions');
+      console.log('Connected to MongoDB successfully.');
 
-  // Schedule the second job at 3:00 PM every day
-  /*cron.schedule('03 12 * * *', () => {
-    console.log('Running cron job at 5:00 PM');
-    sendGoldRate(whatsappClient);
-  });*/
+      const mongoStore = new MongoStore(sessionCollection);
+      const whatsappClient = new Client({
+        authStrategy: new RemoteAuth({
+          store: mongoStore,
+          backupSyncIntervalMs: 60000,
+        }),
+        puppeteer: { 
+          headless: true,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu'
+          ]
+        }
+      });
 
-  /*cron.schedule('04 12 * * *', () => {
-    console.log('Running cron job at 3:00 PM');
-    sendGoldRate(whatsappClient);
-  });*/
+      whatsappClient.on('qr', async (qr) => {
+        console.log('QR code received, scan it with your WhatsApp app.');
+        qrCodeData = await qrcode.toDataURL(qr);
+      });
 
-  console.log('Cron jobs scheduled: 10:00 AM and 5:00 PM');
+      whatsappClient.on('ready', () => {
+        console.log('Client is ready to use WhatsApp.');
+        whatsappClientInstance = whatsappClient;
+      });
+
+      whatsappClient.on('disconnected', (reason) => {
+        console.log('Client was logged out or disconnected:', reason);
+        whatsappClientInstance = null;
+        console.log('Re-authenticating...');
+        whatsappClient.initialize();
+      });
+
+      whatsappClient.initialize();
+    } else {
+      console.log('Failed to establish a database connection.');
+    }
+  } catch (error) {
+    console.error('Error starting WhatsApp client:', error);
+  }
 }
 
-// Start the WhatsApp client with MongoDB RemoteAuth
+// Start the WhatsApp client
 startWhatsApp();
 
+// Express routes
 app.get('/', (req, res) => {
   if (qrCodeData) {
     res.send(`
@@ -355,7 +349,7 @@ app.get('/', (req, res) => {
           <title>WhatsApp QR Code</title>
         </head>
         <body style="text-align: center; padding-top: 50px;">
-          <h1>Scan the QR code with your WhatsApp app</h1>
+          <h1>Scan the QR Code with your WhatsApp app</h1>
           <img src="${qrCodeData}" alt="QR Code" />
         </body>
       </html>
@@ -374,6 +368,20 @@ app.get('/', (req, res) => {
   }
 });
 
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Server running on port ${port}`);
+});
+
+// Handle process termination
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received. Cleaning up...');
+  if (worker) {
+    await worker.terminate();
+  }
+  process.exit(0);
+});
