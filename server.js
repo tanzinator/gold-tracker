@@ -368,7 +368,7 @@ function scheduleCronJobs(whatsappClient) {
 // Start the WhatsApp client with MongoDB RemoteAuth
 startWhatsApp();
 
-app.get('https://aurum-tracker.onrender.com/', (req, res) => {
+app.get('/', (req, res) => {
   if (qrCodeData) {
     res.send(`
       <html>
