@@ -1,12 +1,71 @@
-[1107/235006.046:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.", source:  (0)
-[1107/235006.047:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.", source:  (0)
-[1107/235006.047:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.", source:  (0)
-[1107/235006.047:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.", source:  (0)
-[1107/235006.047:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.", source:  (0)
-[1107/235006.048:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.", source:  (0)
-[1107/235006.048:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.", source:  (0)
-[1107/235006.048:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.", source:  (0)
-[1107/235006.048:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'unload'.", source:  (0)
-[1107/235006.048:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
-[1107/235009.860:INFO:CONSOLE(153)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/yQ/r/9cywxzFshxB.js (153)
-[1107/235041.514:INFO:CONSOLE(153)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/yQ/r/9cywxzFshxB.js (153)
+[1108/113743.119:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.", source:  (0)
+[1108/113743.119:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.", source:  (0)
+[1108/113743.119:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.", source:  (0)
+[1108/113743.119:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.", source:  (0)
+[1108/113743.119:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.", source:  (0)
+[1108/113743.120:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.", source:  (0)
+[1108/113743.120:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.", source:  (0)
+[1108/113743.120:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.", source:  (0)
+[1108/113743.120:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'unload'.", source:  (0)
+[1108/113743.120:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
+[1108/113746.976:INFO:CONSOLE(153)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/yv/r/zSSDdH5l85i.js (153)
+[1108/114014.131:INFO:CONSOLE(153)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/yv/r/zSSDdH5l85i.js (153)
+[1108/114141.525:INFO:CONSOLE(0)] "Uncaught (in promise) #<a>", source: https://web.whatsapp.com/ (0)
+[1108/114141.685:INFO:CONSOLE(0)] "Uncaught (in promise) DbEncKeyNotLoadedError: MasterDatabaseEncryptionKey.fts_hmac_keys was accessed before init", source: https://web.whatsapp.com/static_resources/webworker_v1/init_script/?__hs=20035.HYP%3Awhatsapp_comet_pkg.2.1..0.1&__spin_r=1018043676&__spin_b=trunk&__spin_t=1731046080 (0)
+[1108/114142.880:INFO:CONSOLE(88)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iuY-4/yN/l/rt/dREPZPSMpCH.js (88)
+[1108/114143.054:INFO:CONSOLE(153)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/yv/r/zSSDdH5l85i.js (153)
+[1108/114143.070:INFO:CONSOLE(88)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iuY-4/yN/l/rt/dREPZPSMpCH.js (88)
+[1108/114144.185:INFO:CONSOLE(88)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iuY-4/yN/l/rt/dREPZPSMpCH.js (88)
+[1108/114146.200:INFO:CONSOLE(88)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iuY-4/yN/l/rt/dREPZPSMpCH.js (88)
+[1108/114146.607:INFO:CONSOLE(0)] "Uncaught (in promise) #<a>", source: https://web.whatsapp.com/ (0)
+[1108/114148.467:INFO:CONSOLE(0)] "Uncaught (in promise) #<a>", source: https://web.whatsapp.com/ (0)
+[1108/114148.478:INFO:CONSOLE(0)] "Uncaught (in promise) #<a>", source: https://web.whatsapp.com/ (0)
+[1108/114148.486:INFO:CONSOLE(42)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iTNN4/yB/l/rt/bttkeZkVJ-F2RSfFSjWLjP54rSuSJxUhSvsWqehdEtWw.js (42)
+[1108/114148.491:INFO:CONSOLE(4)] "Uncaught (in promise) Error: Evaluation failed: a", source: https://web.whatsapp.com/ (4)
+[1108/114149.870:INFO:CONSOLE(0)] "Uncaught (in promise) #<a>", source: https://web.whatsapp.com/ (0)
+[1108/114150.324:INFO:CONSOLE(42)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iTNN4/yB/l/rt/bttkeZkVJ-F2RSfFSjWLjP54rSuSJxUhSvsWqehdEtWw.js (42)
+[1108/114150.335:INFO:CONSOLE(88)] "Uncaught (in promise) #<a>", source: https://static.whatsapp.net/rsrc.php/v3iuY-4/yN/l/rt/dREPZPSMpCH.js (88)
+[1108/114151.784:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.", source:  (0)
+[1108/114151.785:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.", source:  (0)
+[1108/114151.786:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.", source:  (0)
+[1108/114151.786:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'unload'.", source:  (0)
+[1108/114151.786:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
+[1108/114151.884:ERROR:entry_impl.cc(1072)] No file for 80000009
+[1108/114151.885:ERROR:entry_impl.cc(1072)] No file for 8000000a
+[1108/114152.079:ERROR:entry_impl.cc(1072)] No file for 80000005
+[1108/114152.292:ERROR:entry_impl.cc(1072)] No file for 8000000c
+[1108/114152.295:ERROR:entry_impl.cc(1072)] No file for 8000000e
+[1108/114152.296:ERROR:entry_impl.cc(1072)] No file for 8000000d
+[1108/114152.298:ERROR:entry_impl.cc(1072)] No file for 80000013
+[1108/114152.303:ERROR:entry_impl.cc(1072)] No file for 80000011
+[1108/114152.327:ERROR:entry_impl.cc(1072)] No file for 8000000f
+[1108/114152.331:ERROR:entry_impl.cc(1072)] No file for 80000010
+[1108/114152.338:ERROR:entry_impl.cc(1072)] No file for 80000012
+[1108/114152.340:ERROR:entry_impl.cc(1072)] No file for 8000000b
+[1108/114153.127:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[1108/114153.128:ERROR:disk_cache.cc(205)] Unable to create cache
+[1108/114153.128:ERROR:gpu_disk_cache.cc(673)] Gpu Cache Creation failed: -2
+[1108/114153.128:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[1108/114153.129:ERROR:disk_cache.cc(205)] Unable to create cache
+[1108/114153.129:ERROR:gpu_disk_cache.cc(673)] Gpu Cache Creation failed: -2
+[1108/114153.278:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[1108/114153.278:ERROR:disk_cache.cc(205)] Unable to create cache
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'compute-pressure'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'interest-cohort'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-issuance'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'shared-storage'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'private-state-token-redemption'.", source:  (0)
+[1108/114153.723:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'unload'.", source:  (0)
+[1108/114153.724:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
+[1108/114201.273:ERROR:quota_database.cc(929)] Could not open the quota database, resetting.
+[1108/114205.203:ERROR:quota_database.cc(929)] Could not open the quota database, resetting.
+[1108/114208.001:ERROR:quota_database.cc(931)] Failed to reset the quota database.
+[1108/114208.001:ERROR:quota_database.cc(931)] Failed to reset the quota database.

@@ -132,6 +132,8 @@ async function startWhatsApp() {
   } catch (error) {
     console.error('Error starting WhatsApp client:', error);
   }
+
+  return whatsappClient;
 }
 
 const phoneNumbers = [
