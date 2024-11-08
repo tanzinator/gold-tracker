@@ -104,7 +104,6 @@ async function startWhatsApp() {
       // Handle successful authentication and session persistence in MongoDB
       whatsappClient.on('ready', () => {
         console.log('Client is ready to use WhatsApp.');
-        console.log(whatsappClient.session)
         sendGoldRate(whatsappClient);
         
         // Schedule the cron jobs once the client is ready
@@ -368,6 +367,17 @@ function scheduleCronJobs(whatsappClient) {
 // Start the WhatsApp client with MongoDB RemoteAuth
 //startWhatsApp();
 
+app.get('/send-gold-rate', async (req, res) => {
+  try {
+    const client = await startWhatsApp(); // Ensure client is connected
+    await sendGoldRate(client);
+    res.send('Gold rate sent successfully!');
+  } catch (error) {
+    console.error('Error sending gold rate:', error);
+    res.status(500).send('Failed to send gold rate');
+  }
+});
+
 app.get('/', (req, res) => {
   if (qrCodeData) {
     res.send(`
@@ -395,9 +405,7 @@ app.get('/', (req, res) => {
   }
 });
 
-startWhatsApp().then(client => {
-  module.exports = { sendGoldRate, client }; // Export the function and client for use in other files
-}).catch(console.error);
+startWhatsApp().catch(console.error);
 
 
 app.listen(port, () => {
