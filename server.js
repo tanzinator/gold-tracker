@@ -121,6 +121,8 @@ async function startWhatsApp() {
   
       // Initialize the WhatsApp client
       whatsappClient.initialize();
+
+      return whatsappClient;
     }
     else {
       console.log('Failed to establish a database connection.');
@@ -133,7 +135,7 @@ async function startWhatsApp() {
     console.error('Error starting WhatsApp client:', error);
   }
 
-  return whatsappClient;
+  
 }
 
 const phoneNumbers = [
