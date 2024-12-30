@@ -4,7 +4,7 @@ This Node.js application fetches real-time gold rates from the Gold websites, an
 
 ## Features
 
-- Fetches real-time **22K** and **24K** gold rates from the Malabar Gold and Diamonds website.
+- Fetches real-time **22K** and **24K** gold rates from different jewellers websites.
 - Handles redirects and cookies for correct server response.
 - Uses **WhatsApp Web** to send gold prices to multiple contacts.
 - Built using **Node.js**, **Axios**, and **whatsapp-web.js**.
